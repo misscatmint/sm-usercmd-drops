@@ -1,0 +1,19 @@
+name: Set up SourceMod
+description: Installs a pinned SourceMod build and puts its scripting folder in SMDIR and its compiler in SPCOMP.
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        SOURCEMOD: https://github.com/alliedmodders/sourcemod/releases/download/1.12.0.7260/sourcemod-1.12.0-git7260-linux.tar.gz
+        SOURCEMOD_SHA256: b01719e6143bc7d5bb63aae8086d031574da6ef838f041ba4b8ab72c8c75b888
+      run: |
+        curl -fsSL -o "$RUNNER_TEMP/sourcemod.tar.gz" "$SOURCEMOD"
+        echo "$SOURCEMOD_SHA256  $RUNNER_TEMP/sourcemod.tar.gz" | sha256sum -c -
+        mkdir "$RUNNER_TEMP/sourcemod"
+        tar -xzf "$RUNNER_TEMP/sourcemod.tar.gz" -C "$RUNNER_TEMP/sourcemod"
+        SMDIR="$RUNNER_TEMP/sourcemod/addons/sourcemod/scripting"
+        echo "SMDIR=$SMDIR" >> "$GITHUB_ENV"
+        # spcomp finds its includes next to the path it was started by.
+        echo "SPCOMP=$SMDIR/spcomp64" >> "$GITHUB_ENV"
